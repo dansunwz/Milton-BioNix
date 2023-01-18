@@ -13,8 +13,8 @@ If you wish to read more about the node `vc7-shared`, you can refer to this [pag
 
 <br>
 
-Using BioNix on Milton requires dependencies [Nix](https://nixos.org/) and [Git](https://git-scm.com/). Note that although Git is installed globally on Milton, it is an older version (view by `git --version`). 
-To load them, type in: (loading Nix will also load a later version of Git)
+Using BioNix on Milton requires dependencies [Nix](https://nixos.org/) and [Git](https://git-scm.com/). Note that the default Git on Milton is outdated, and the Nix module loads a newer version (view by `git --version`). 
+To load them, type in:
 ```{sh}
 module load nix
 ```
