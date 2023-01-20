@@ -99,3 +99,58 @@ Now run the script:
 ```
 After running the script `test.sh`, a prompt will show up in the terminal to tell you whether BioNix is working as intended. If it isn't, please follow the guide from the beginning and try to configure BioNix again.
 
+## Resource allocation
+
+Cpus per task and memory allocations can be specified for the jobs that your nix expressions may schedule to SLURM. Contrary to usual practice, for example, of using the `--cpus-per-task=` or `--mem=` flags with `srun`, default resource requirements can be specified as an overlay in a `flake.nix` file, as shown in [jbedo's static-nix documentation](https://github.com/jbedo/static-nix).
+```{nix}
+{
+  description = "Flake for yourSoftware";
+
+  inputs = {
+    bionix.url = "github:papenfusslab/bionix";
+    nixpkgs.url = "github:nixos/nixpkgs";
+    flake-utils.url = "github:numtide/flake-utils";
+  };
+
+  outputs = { self, nixpkgs, bionix, flake-utils }:
+    flake-utils.lib.eachDefaultSystem
+      (system: with bionix.lib
+        {
+          overlays = [
+            (self: super: { example = self.callBionix ./example.nix { }; })
+            (self: super: {
+              exec = f: x@{ ppn ? 1, mem ? 1, walltime ? "2:00:00", ... }: y:
+                (f (removeAttrs x [ "ppn" "mem" "walltime" ]) y).overrideAttrs (attrs: {
+                  PPN = if attrs.passthru.multicore or false then ppn else 1;
+                  MEMORY = toString mem + "G";
+                  WALLTIME = walltime;
+                });
+            })
+            ./resources.nix
+          ];
+          nixpkgs = import nixpkgs { inherit system; };
+        };
+      {
+        defaultPackage = callBionix ./. { };
+      }
+      );
+}
+```
+Above is [victorwkb's example `flake.nix` template](https://github.com/victorwkb/BioNix-Doc) with [jbedo's example of resource allocation](https://github.com/jbedo/static-nix).
+
+As mentioned in the [BioNix README](https://github.com/PapenfussLab/bionix):
+- ppn is the number of cores to request
+- mem is the amount of memory to request (GB)
+- walltime is a string defining the maximum walltime
+And the default parameters of these can be specificed in the overlay above. For example `ppn ? 1, mem ? 1, walltime ? "2:00:00"` will give 1 core, 1GB of memory and a walltime of 2 hours.
+
+Such as the example above, you may also pass in a nix file, in this case `resources.nix` that can override the default resource specifications for a specfied job. Here is an example from [jbedo's malaria-variant-calling](https://github.com/jbedo/malaria-variant-calling/blob/master/resources.nix):
+```{nix}
+self: super: with super;
+{
+  bwa.align = def bwa.align { mem = 20; ppn = 20; walltime = "12:00:00"; };
+  samtools.sort = def samtools.sort { ppn = 10; mem = 15; flags = "-m 1G"; walltime = "1:00:00"; };
+  octopus.call = def octopus.call { mem = 20; ppn = 24; walltime = "24:00:00"; };
+}
+```
+So the job of `bionix.bwa.align` will recieve 20GB of memory, 20 cores and a walltime of 12 hours to complete.
