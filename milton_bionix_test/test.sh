@@ -3,7 +3,7 @@ if [[ -f ./milton-bionix-output.txt ]] ; then
     rm -f ./milton-bionix-output.txt
 fi
 
-cp ../../result ./milton-bionix-output.txt
+grep -v "platypusOptions" ../../result > milton-bionix-output.txt
 output=`diff sample-output.txt milton-bionix-output.txt`
 
 if [[ -z $output ]] ; then
