@@ -40,64 +40,17 @@ rather than `with import <nixpkgs> {};` as channels are not configured with `nix
 
 ## Testing BioNix
 
-To ensure BioNix is working correctly on Milton we will test it with [Kai Bing's BioNix-qc-pipe](https://github.com/victorwkb/BioNix-qc-pipe).
+To ensure BioNix is working correctly on Milton we will test it with [Kai Bing's BioNix-qc-pipe BioBloom tool](https://github.com/victorwkb/BioNix-qc-pipe/tree/main/qc-pipe/biobloom).
 
 First, make sure you have correctly set up Nix on Milton according to the instructions above, then in your home directory or your preferred location on Milton, run:
 ```{sh}
-git clone --depth 1 https://github.com/victorwkb/BioNix-qc-pipe.git
+nix build github:victorwkb/BioNix-qc-pipe?dir=qc-pipe/biobloom && sha256sum -c <(echo "817e25ba80dcbb89b8a5b5e9ba48dc82eba38f1cb54ae989fd18d0a6306b1718" ./result)
 ```
+This command builds [Kai Bing's BioNix-qc-pipe BioBloom tool](https://github.com/victorwkb/BioNix-qc-pipe/tree/main/qc-pipe/biobloom) and checks its cryptographic sha256 hash against its expected hash to verify that the correct output is generated.
 
-<br>
+`nix build github:victorwkb/BioNix-qc-pipe?dir=qc-pipe/biobloom` will build the expression from [Kai Bing's BioNix-qc-pipe BioBloom tool](https://github.com/victorwkb/BioNix-qc-pipe/tree/main/qc-pipe/biobloom). The `&&` bash 'and' logical operator will execute the part of the command that is after it if the part before it is 'true' or in this case, it works. The `sha256sum -c` will check that the expected hash that is being redirected to it matches with the hash of the local `./result` file generated from [Kai Bing's BioNix-qc-pipe BioBloom tool](https://github.com/victorwkb/BioNix-qc-pipe/tree/main/qc-pipe/biobloom).
 
-Now change the directory to `subread-wf`:
-```{sh}
-cd BioNix-qc-pipe/subread-wf/
-```
-
-<br>
-
-Build the expression using:
-```{sh}
-nix build
-```
-Use `nix build` to test workflows, it will create a symlink to the build result under the `result` directory. In this case, when no path is specificed, `nix build` will build the `default.nix` file from the flake in the current directory. Nix Flakes allow you to specify code dependencies in the `flake.nix` file. A `flake.lock` file will be generated when you build for the first time, it contains a record of the version of all packages used in this build. Nix Flakes are the key to Nix's high reproducibility. You can read more about Nix Flakes [here](https://nixos.wiki/wiki/Flakes).
-
-<br>
-
-You can view the results with:
-```{sh}
-cat result
-```
-
-<br>
-
-To ensure the result is correct we will compare it with the expected result.
-A couple of files are required to do this test, you can get them by doing:
-```{sh}
-git clone --depth 1 https://github.com/dansunwz/Milton-BioNix.git
-```
-
-<br>
-
-Now change directory to the test folder we've just cloned:
-```{sh}
-cd Milton-BioNix/milton_bionix_test/
-```
-
-<br>
-
-Give permission to run the shell script by typing in:
-```{sh}
-chmod +x test.sh
-```
-
-<br>
-
-Now run the script:
-```{sh}
-./test.sh
-```
-After running the script `test.sh`, a prompt will show up in the terminal to tell you whether BioNix is working as intended. If it isn't, please follow the guide from the beginning and try to configure BioNix again.
+If BioNix works correctly then the output of this command should be `./result: OK`
 
 ## Resource allocation
 
