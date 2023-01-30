@@ -40,21 +40,26 @@ rather than `with import <nixpkgs> {};` as channels are not configured with `nix
 
 ## Testing BioNix
 
-To ensure BioNix is working correctly on Milton we will test it with [Kai Bing's BioNix-qc-pipe BioBloom tool](https://github.com/victorwkb/BioNix-qc-pipe/tree/main/qc-pipe/biobloom).
+To ensure BioNix is working correctly on Milton we will test it with [Kai Bing's BioNix BioBloom tools](https://github.com/victorwkb/BioNix-qc-pipe/tree/main/qc-pipe/biobloom).
 
 First, make sure you have correctly set up Nix on Milton according to the instructions above, then in your home directory or your preferred location on Milton, run:
 ```{sh}
 nix build github:victorwkb/BioNix-qc-pipe?dir=qc-pipe/biobloom && sha256sum -c <(echo "817e25ba80dcbb89b8a5b5e9ba48dc82eba38f1cb54ae989fd18d0a6306b1718" ./result)
 ```
-This command builds [Kai Bing's BioNix-qc-pipe BioBloom tool](https://github.com/victorwkb/BioNix-qc-pipe/tree/main/qc-pipe/biobloom) and checks its cryptographic sha256 hash against its expected hash to verify that the correct output is generated.
+This step may take a while to finish.
+The above command builds BioBloom tools in BioNix and compares the cryptographic hash of `result` against the expected value to verify that the correct output has been generated.
 
-`nix build github:victorwkb/BioNix-qc-pipe?dir=qc-pipe/biobloom` will build the expression from [Kai Bing's BioNix-qc-pipe BioBloom tool](https://github.com/victorwkb/BioNix-qc-pipe/tree/main/qc-pipe/biobloom). The `&&` bash 'and' logical operator will execute the part of the command that is after it if the part before it is 'true' or in this case, it works. The `sha256sum -c` will check that the expected hash that is being redirected to it matches with the hash of the local `./result` file generated from [Kai Bing's BioNix-qc-pipe BioBloom tool](https://github.com/victorwkb/BioNix-qc-pipe/tree/main/qc-pipe/biobloom).
+*Running `nix build` will create a symlink to the build result under the `result` directory. In this case, when no path is specificed, `nix build` will build the `default.nix` file from the flake in the current directory. Nix Flakes allow you to specify code dependencies in the flake.nix file. A `flake.lock` file will be generated when you build for the first time, it contains a record of the version of all packages used in this build. Nix Flakes are the key to Nix's high reproducibility. You can read more about Nix Flakes [here](https://nixos.wiki/wiki/Flakes).*
 
-If BioNix works correctly then the output of this command should be `./result: OK`
+`nix build github:victorwkb/BioNix-qc-pipe?dir=qc-pipe/biobloom` will build the expressions from the `biobloom` subdirectory under [Kai Bing's BioNix-qc-pipe repository](https://github.com/victorwkb/BioNix-qc-pipe). `&&` is a logical operator in bash, meaning that a command will only be executed if its preceding command evaluates to 'true', or in this case, it works. The `sha256sum -c` will check if the hash that is being redirected to it matches with the hash of the generated `./result` file. A match indicates the file is identical to expected output.
+
+<br>
+
+If BioNix works correctly then the output of this command should be `./result: OK`.
 
 ## Resource allocation
 
-Cpus per task and memory allocations can be specified for the jobs that your nix expressions may schedule to SLURM. Contrary to usual practice, for example, of using the `--cpus-per-task=` or `--mem=` flags with `srun`, default resource requirements can be specified as an overlay in a `flake.nix` file, as shown in [jbedo's static-nix documentation](https://github.com/jbedo/static-nix).
+CPUs per task and memory allocations can be specified for the jobs that your nix expressions may schedule to SLURM. Contrary to usual practice, for example, of using the `--cpus-per-task=` or `--mem=` flags with `srun`, default resource requirements can be specified as an overlay in a `flake.nix` file, as shown in [jbedo's static-nix documentation](https://github.com/jbedo/static-nix).
 ```{nix}
 {
   description = "Flake for yourSoftware";
