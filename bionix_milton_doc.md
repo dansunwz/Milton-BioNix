@@ -40,68 +40,28 @@ rather than `with import <nixpkgs> {};` as channels are not configured with `nix
 
 ## Testing BioNix
 
-To ensure BioNix is working correctly on Milton we will test it with [Kai Bing's BioNix-qc-pipe](https://github.com/victorwkb/BioNix-qc-pipe).
+To ensure BioNix is working correctly on Milton we will test it with [Kai Bing's BioNix BioBloom tools](https://github.com/WEHI-ResearchComputing/BioNix-qc-pipe/tree/main/qc-pipe/biobloom).
 
 First, make sure you have correctly set up Nix on Milton according to the instructions above, then in your home directory or your preferred location on Milton, run:
 ```{sh}
-git clone --depth 1 https://github.com/victorwkb/BioNix-qc-pipe.git
+nix build github:WEHI-ResearchComputing/BioNix-qc-pipe?dir=qc-pipe/biobloom && sha256sum -c <(echo "817e25ba80dcbb89b8a5b5e9ba48dc82eba38f1cb54ae989fd18d0a6306b1718" ./result)
 ```
+*Note that you may need to add apostrophes around the question mark, `'?'` in the command above if you are using zsh as your terminal shell.*
+
+This step may take a while to finish.
+The above command builds BioBloom tools in BioNix and compares the cryptographic hash of `result` against the expected value to verify that the correct output has been generated.
+
+*Running `nix build` will create a symlink to the build result under the `result` directory. In this case, when no path is specificed, `nix build` will build the `default.nix` file from the flake in the current directory. Nix Flakes allow you to specify code dependencies in the flake.nix file. A `flake.lock` file will be generated when you build for the first time, it contains a record of the version of all packages used in this build. Nix Flakes are the key to Nix's high reproducibility. You can read more about Nix Flakes [here](https://nixos.wiki/wiki/Flakes).*
+
+`nix build github:WEHI-ResearchComputing/BioNix-qc-pipe?dir=qc-pipe/biobloom` will build the expressions from the `biobloom` subdirectory under [Kai Bing's BioNix-qc-pipe repository](https://github.com/WEHI-ResearchComputing/BioNix-qc-pipe). `&&` is a logical operator in bash, meaning that a command will only be executed if its preceding command evaluates to 'true', or in this case, it works. The `sha256sum -c` will check if the hash that is being redirected to it matches with the hash of the generated `./result` file. A match indicates the file is identical to expected output.
 
 <br>
 
-Now change the directory to `subread-wf`:
-```{sh}
-cd BioNix-qc-pipe/subread-wf/
-```
-
-<br>
-
-Build the expression using:
-```{sh}
-nix build
-```
-Use `nix build` to test workflows, it will create a symlink to the build result under the `result` directory. In this case, when no path is specificed, `nix build` will build the `default.nix` file from the flake in the current directory. Nix Flakes allow you to specify code dependencies in the `flake.nix` file. A `flake.lock` file will be generated when you build for the first time, it contains a record of the version of all packages used in this build. Nix Flakes are the key to Nix's high reproducibility. You can read more about Nix Flakes [here](https://nixos.wiki/wiki/Flakes).
-
-<br>
-
-You can view the results with:
-```{sh}
-cat result
-```
-
-<br>
-
-To ensure the result is correct we will compare it with the expected result.
-A couple of files are required to do this test, you can get them by doing:
-```{sh}
-git clone --depth 1 https://github.com/dansunwz/Milton-BioNix.git
-```
-
-<br>
-
-Now change directory to the test folder we've just cloned:
-```{sh}
-cd Milton-BioNix/milton_bionix_test/
-```
-
-<br>
-
-Give permission to run the shell script by typing in:
-```{sh}
-chmod +x test.sh
-```
-
-<br>
-
-Now run the script:
-```{sh}
-./test.sh
-```
-After running the script `test.sh`, a prompt will show up in the terminal to tell you whether BioNix is working as intended. If it isn't, please follow the guide from the beginning and try to configure BioNix again.
+If BioNix works correctly then the output of this command should be `./result: OK`.
 
 ## Resource allocation
 
-Cpus per task and memory allocations can be specified for the jobs that your nix expressions may schedule to SLURM. Contrary to usual practice, for example, of using the `--cpus-per-task=` or `--mem=` flags with `srun`, default resource requirements can be specified as an overlay in a `flake.nix` file, as shown in [jbedo's static-nix documentation](https://github.com/jbedo/static-nix).
+CPUs per task and memory allocations can be specified for the jobs that your nix expressions may schedule to SLURM. Contrary to usual practice, for example, of using the `--cpus-per-task=` or `--mem=` flags with `srun`, default resource requirements can be specified as an overlay in a `flake.nix` file, as shown in [jbedo's static-nix documentation](https://github.com/jbedo/static-nix).
 ```{nix}
 {
   description = "Flake for yourSoftware";
@@ -136,7 +96,7 @@ Cpus per task and memory allocations can be specified for the jobs that your nix
       );
 }
 ```
-Above is [victorwkb's example `flake.nix` template](https://github.com/victorwkb/BioNix-Doc) with [jbedo's example of resource allocation](https://github.com/jbedo/static-nix).
+Above is [victorwkb's example `flake.nix` template](https://github.com/WEHI-ResearchComputing/BioNix-Doc) with [jbedo's example of resource allocation](https://github.com/jbedo/static-nix).
 
 As mentioned in the [BioNix README](https://github.com/PapenfussLab/bionix):
 - ppn is the number of cores to request
