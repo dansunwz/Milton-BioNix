@@ -46,7 +46,7 @@ First, make sure you have correctly set up Nix on Milton according to the instru
 ```{sh}
 nix build github:WEHI-ResearchComputing/BioNix-qc-pipe?dir=qc-pipe/biobloom && sha256sum -c <(echo "817e25ba80dcbb89b8a5b5e9ba48dc82eba38f1cb54ae989fd18d0a6306b1718" ./result)
 ```
-*Note that you may need to add apostrophes around the question mark, `'?'` in the command above if you are using zsh as your terminal shell.
+*Note that you may need to add apostrophes around the question mark, `'?'` in the command above if you are using zsh as your terminal shell.*
 
 This step may take a while to finish.
 The above command builds BioBloom tools in BioNix and compares the cryptographic hash of `result` against the expected value to verify that the correct output has been generated.
