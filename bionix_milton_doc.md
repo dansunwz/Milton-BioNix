@@ -40,18 +40,20 @@ rather than `with import <nixpkgs> {};` as channels are not configured with `nix
 
 ## Testing BioNix
 
-To ensure BioNix is working correctly on Milton we will test it with [Kai Bing's BioNix BioBloom tools](https://github.com/victorwkb/BioNix-qc-pipe/tree/main/qc-pipe/biobloom).
+To ensure BioNix is working correctly on Milton we will test it with [Kai Bing's BioNix BioBloom tools](https://github.com/WEHI-ResearchComputing/BioNix-qc-pipe/tree/main/qc-pipe/biobloom).
 
 First, make sure you have correctly set up Nix on Milton according to the instructions above, then in your home directory or your preferred location on Milton, run:
 ```{sh}
-nix build github:victorwkb/BioNix-qc-pipe?dir=qc-pipe/biobloom && sha256sum -c <(echo "817e25ba80dcbb89b8a5b5e9ba48dc82eba38f1cb54ae989fd18d0a6306b1718" ./result)
+nix build github:WEHI-ResearchComputing/BioNix-qc-pipe?dir=qc-pipe/biobloom && sha256sum -c <(echo "817e25ba80dcbb89b8a5b5e9ba48dc82eba38f1cb54ae989fd18d0a6306b1718" ./result)
 ```
+*Note that you may need to add apostrophes around the question mark, `'?'` in the command above if you are using zsh as your terminal shell.
+
 This step may take a while to finish.
 The above command builds BioBloom tools in BioNix and compares the cryptographic hash of `result` against the expected value to verify that the correct output has been generated.
 
 *Running `nix build` will create a symlink to the build result under the `result` directory. In this case, when no path is specificed, `nix build` will build the `default.nix` file from the flake in the current directory. Nix Flakes allow you to specify code dependencies in the flake.nix file. A `flake.lock` file will be generated when you build for the first time, it contains a record of the version of all packages used in this build. Nix Flakes are the key to Nix's high reproducibility. You can read more about Nix Flakes [here](https://nixos.wiki/wiki/Flakes).*
 
-`nix build github:victorwkb/BioNix-qc-pipe?dir=qc-pipe/biobloom` will build the expressions from the `biobloom` subdirectory under [Kai Bing's BioNix-qc-pipe repository](https://github.com/victorwkb/BioNix-qc-pipe). `&&` is a logical operator in bash, meaning that a command will only be executed if its preceding command evaluates to 'true', or in this case, it works. The `sha256sum -c` will check if the hash that is being redirected to it matches with the hash of the generated `./result` file. A match indicates the file is identical to expected output.
+`nix build github:WEHI-ResearchComputing/BioNix-qc-pipe?dir=qc-pipe/biobloom` will build the expressions from the `biobloom` subdirectory under [Kai Bing's BioNix-qc-pipe repository](https://github.com/WEHI-ResearchComputing/BioNix-qc-pipe). `&&` is a logical operator in bash, meaning that a command will only be executed if its preceding command evaluates to 'true', or in this case, it works. The `sha256sum -c` will check if the hash that is being redirected to it matches with the hash of the generated `./result` file. A match indicates the file is identical to expected output.
 
 <br>
 
@@ -94,7 +96,7 @@ CPUs per task and memory allocations can be specified for the jobs that your nix
       );
 }
 ```
-Above is [victorwkb's example `flake.nix` template](https://github.com/victorwkb/BioNix-Doc) with [jbedo's example of resource allocation](https://github.com/jbedo/static-nix).
+Above is [victorwkb's example `flake.nix` template](https://github.com/WEHI-ResearchComputing/BioNix-Doc) with [jbedo's example of resource allocation](https://github.com/jbedo/static-nix).
 
 As mentioned in the [BioNix README](https://github.com/PapenfussLab/bionix):
 - ppn is the number of cores to request
