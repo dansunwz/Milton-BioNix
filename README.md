@@ -4,12 +4,12 @@ Milton can be accessed via [WEHI RAP](https://rap.wehi.edu.au/), under the tab *
 
 ## Setting up BioNix
 
-To run [BioNix](https://github.com/PapenfussLab/bionix) on Milton, we first need to switch the node to `vc7-shared` as Nix can only be run in this node. Run the following command:
+To run [BioNix](https://github.com/PapenfussLab/bionix) on Milton, we first need to switch the node to `vc7-shared` as Nix can only run in this node. Run the following command:
 ```{sh}
 ssh vc7-shared
 ```
 and type in your WEHI password. You will see another message that tells you have switched node successfully.
-If you wish to read more about the node `vc7-shared`, you can refer to this [page](https://wehieduau.sharepoint.com/sites/rc2/SitePages/using-milton.aspx) in WEHI's [Research Computing Website](https://wehieduau.sharepoint.com/sites/rc2).
+If you wish to read more about the node `vc7-shared`, you can refer to this [page](https://wehieduau.sharepoint.com/sites/rc2/SitePages/using-milton.aspx) on WEHI's [Research Computing Website](https://wehieduau.sharepoint.com/sites/rc2).
 
 <br>
 
@@ -37,6 +37,7 @@ with import (builtins.getFlake "nixpkgs") {};
 ```
 rather than `with import <nixpkgs> {};` as channels are not configured with `nix-channel`.
 
+You can also read more about using Nix on Milton [here](https://wehieduau.sharepoint.com/sites/rc2/SitePages/Nix.aspx).
 
 ## Testing BioNix
 
@@ -46,18 +47,17 @@ First, make sure you have correctly set up Nix on Milton according to the instru
 ```{sh}
 nix build github:WEHI-ResearchComputing/BioNix-qc-pipe?dir=qc-pipe/biobloom && sha256sum -c <(echo "817e25ba80dcbb89b8a5b5e9ba48dc82eba38f1cb54ae989fd18d0a6306b1718" ./result)
 ```
-*Note that you may need to add apostrophes around the question mark, `'?'` in the command above if you are using zsh as your terminal shell.*
 
 This step may take a while to finish.
 The above command builds BioBloom tools in BioNix and compares the cryptographic hash of `result` against the expected value to verify that the correct output has been generated.
 
-*Running `nix build` will create a symlink to the build result under the `result` directory. In this case, when no path is specificed, `nix build` will build the `default.nix` file from the flake in the current directory. Nix Flakes allow you to specify code dependencies in the flake.nix file. A `flake.lock` file will be generated when you build for the first time, it contains a record of the version of all packages used in this build. Nix Flakes are the key to Nix's high reproducibility. You can read more about Nix Flakes [here](https://nixos.wiki/wiki/Flakes).*
+*Running `nix build` will create a symlink to the build result under the `result` directory. In this case, when no path is specified, `nix build` will build the `default.nix` file from the flake in the current directory. Nix Flakes allow you to specify code dependencies in the flake.nix file. A `flake.lock` file will be generated when you build for the first time, it contains a record of the version of all packages used in this build. Nix Flakes are the key to Nix's high reproducibility. You can read more about Nix Flakes [here](https://nixos.wiki/wiki/Flakes).*
 
-`nix build github:WEHI-ResearchComputing/BioNix-qc-pipe?dir=qc-pipe/biobloom` will build the expressions from the `biobloom` subdirectory under [Kai Bing's BioNix-qc-pipe repository](https://github.com/WEHI-ResearchComputing/BioNix-qc-pipe). `&&` is a logical operator in bash, meaning that a command will only be executed if its preceding command evaluates to 'true', or in this case, it works. The `sha256sum -c` will check if the hash that is being redirected to it matches with the hash of the generated `./result` file. A match indicates the file is identical to expected output.
+`nix build github:WEHI-ResearchComputing/BioNix-qc-pipe?dir=qc-pipe/biobloom` will build the expressions from the `biobloom` subdirectory under [Kai Bing's BioNix-qc-pipe repository](https://github.com/WEHI-ResearchComputing/BioNix-qc-pipe). `&&` is a logical operator in bash, meaning that a command will only be executed if its preceding command evaluates to 'true', or in this case, it works. The `sha256sum -c` will check if the hash being redirected to it matches the hash of the generated `./result` file. A match indicates the file is identical to the expected output.
 
 <br>
 
-If BioNix works correctly then the output of this command should be `./result: OK`.
+If BioNix works correctly, the output of this command should be `./result: OK`.
 
 ## Resource allocation
 
@@ -104,7 +104,7 @@ As mentioned in the [BioNix README](https://github.com/PapenfussLab/bionix):
 - walltime is a string defining the maximum walltime
 And the default parameters of these can be specificed in the overlay above. For example `ppn ? 1, mem ? 1, walltime ? "2:00:00"` will give 1 core, 1GB of memory and a walltime of 2 hours.
 
-Such as the example above, you may also pass in a nix file, in this case `resources.nix` that can override the default resource specifications for a specfied job. Here is an example from [jbedo's malaria-variant-calling](https://github.com/jbedo/malaria-variant-calling/blob/master/resources.nix):
+Such as the example above, you may also pass in a nix file, in this case `resources.nix` that can override the default resource specifications for a specified job. Here is an example from [jbedo's malaria-variant-calling](https://github.com/jbedo/malaria-variant-calling/blob/master/resources.nix):
 ```{nix}
 self: super: with super;
 {
@@ -113,4 +113,4 @@ self: super: with super;
   octopus.call = def octopus.call { mem = 20; ppn = 24; walltime = "24:00:00"; };
 }
 ```
-So the job of `bionix.bwa.align` will recieve 20GB of memory, 20 cores and a walltime of 12 hours to complete.
+The job of `bionix.bwa.align` will recieve 20GB of memory, 20 cores and a walltime of 12 hours to complete.
