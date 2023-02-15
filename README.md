@@ -5,7 +5,7 @@ Milton can be accessed via [WEHI RAP](https://rap.wehi.edu.au/), under the tab *
 ## Setting up BioNix
 
 To run [BioNix](https://github.com/PapenfussLab/bionix) on Milton, we first need to switch the node to `vc7-shared` as Nix can only run in this node. Run the following command:
-```{sh}
+```sh
 ssh vc7-shared
 ```
 and type in your WEHI password. You will see another message that tells you have switched node successfully.
@@ -15,7 +15,7 @@ If you wish to read more about the node `vc7-shared`, you can refer to this [pag
 
 Using BioNix on Milton requires dependencies [Nix](https://nixos.org/) and [Git](https://git-scm.com/). Note that the default Git on Milton is outdated, and the Nix module loads a newer version (view by `git --version`). 
 To load them, type in:
-```{sh}
+```sh
 module load nix
 ```
 Application software on Milton is provided through [Environment Modules](https://modules.sourceforge.net/) and can be accessed via `module` command. For more information, please refer to the page [Accessing software](https://wehieduau.sharepoint.com/sites/rc2/SitePages/modules.aspx).
@@ -23,7 +23,7 @@ Application software on Milton is provided through [Environment Modules](https:/
 <br>
 
 Since Nix is not installed globally on Milton, it is important to bind mount your personal user store using:
-```{sh}
+```sh
 nix-chroot bash
 ```
 Bind mount allows you to mount Nix to another location in the file system (i.e. your personal store) so that you can get access to it. Otherwise you will get a broken symlink when you build an expression.
@@ -32,7 +32,7 @@ Now you can run BioNix as you would on your local machine. E.g. `nix build`.
 <br>
 
 If you want to use [nixpkgs](https://github.com/NixOS/nixpkgs/tree/master/pkgs), you use:
-```{nix}
+```nix
 with import (builtins.getFlake "nixpkgs") {};
 ```
 rather than `with import <nixpkgs> {};` as channels are not configured with `nix-channel`.
@@ -44,7 +44,7 @@ You can also read more about using Nix on Milton [here](https://wehieduau.sharep
 To ensure BioNix is working correctly on Milton we will test it with [Kai Bing's BioNix BioBloom tools](https://github.com/WEHI-ResearchComputing/BioNix-qc-pipe/tree/main/qc-pipe/biobloom).
 
 First, make sure you have correctly set up Nix on Milton according to the instructions above, then in your home directory or your preferred location on Milton, run:
-```{sh}
+```sh
 nix build github:WEHI-ResearchComputing/BioNix-qc-pipe?dir=qc-pipe/biobloom && sha256sum -c <(echo "817e25ba80dcbb89b8a5b5e9ba48dc82eba38f1cb54ae989fd18d0a6306b1718" ./result)
 ```
 
@@ -62,7 +62,7 @@ If BioNix works correctly, the output of this command should be `./result: OK`.
 ## Resource allocation
 
 CPUs per task and memory allocations can be specified for the jobs that your nix expressions may schedule to SLURM. Contrary to usual practice, for example, of using the `--cpus-per-task=` or `--mem=` flags with `srun`, default resource requirements can be specified as an overlay in a `flake.nix` file, as shown in [jbedo's static-nix documentation](https://github.com/jbedo/static-nix).
-```{nix}
+```nix
 {
   description = "Flake for yourSoftware";
 
@@ -105,7 +105,7 @@ As mentioned in the [BioNix README](https://github.com/PapenfussLab/bionix):
 And the default parameters of these can be specificed in the overlay above. For example `ppn ? 1, mem ? 1, walltime ? "2:00:00"` will give 1 core, 1GB of memory and a walltime of 2 hours.
 
 Such as the example above, you may also pass in a nix file, in this case `resources.nix` that can override the default resource specifications for a specified job. Here is an example from [jbedo's malaria-variant-calling](https://github.com/jbedo/malaria-variant-calling/blob/master/resources.nix):
-```{nix}
+```nix
 self: super: with super;
 {
   bwa.align = def bwa.align { mem = 20; ppn = 20; walltime = "12:00:00"; };
